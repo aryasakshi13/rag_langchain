@@ -1,20 +1,18 @@
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
-import { QdrantVectorStore}  from "@langchain/qdrant";
- import "dotenv/config";
+import { JinaEmbeddings } from "@langchain/community/embeddings/jina";
+import { QdrantVectorStore } from "@langchain/qdrant";
+import "dotenv/config";
 
+import { ConcurrencyLimitedEmbeddings } from "./embed-limit.js";
 
- const apiKey = process.env.GEMINI_API_KEY;
+const jinaApiKey = process.env.JINA_API_KEY;
 
- if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not defined in .env");
+if (!jinaApiKey) {
+  throw new Error("JINA_API_KEY is not defined in .env");
 }
 
- console.log(
-  "Google API key loaded:",
-  !!apiKey
-);
+console.log("Jina API key loaded:", !!jinaApiKey);
 
 const filePath = "./src/data/node_js_sample.pdf" ;
 
@@ -40,12 +38,19 @@ console.log("Total chunks :", chunks.length);
 
 
 //  vector embbediing 
-const embeddings = new GoogleGenerativeAIEmbeddings({
-    model: "gemini-embedding-001",
-     apiKey: apiKey,
-    outputDimensionality: 3072,
+// const embeddings = new GoogleGenerativeAIEmbeddings({
+//     model: "gemini-embedding-001",
+//      apiKey: apiKey,
+//     outputDimensionality: 3072,
+// });
+
+const baseEmbeddings = new JinaEmbeddings({
+    apiKey: jinaApiKey,
+    model: "jina-embeddings-v3",
+    dimensions: 1024,
 });
 
+const embeddings = new ConcurrencyLimitedEmbeddings(baseEmbeddings, 2);
 
 const testEmbedding = await embeddings.embedQuery("Hello world");
 
@@ -78,9 +83,9 @@ const vectorStore = await QdrantVectorStore.fromDocuments(
     chunks,
     embeddings,
     {
-        url:qdrantUrl,
-        apiKey:qdrantApiKey,
-        collectionName: "nodejs_documents",
+        url: qdrantUrl,
+        apiKey: qdrantApiKey,
+        collectionName: "nodejs_documents_jina_1024",
     }
 );
 
