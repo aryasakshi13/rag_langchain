@@ -72,7 +72,7 @@ ${doc.pageContent}
     })
     .join("\n");
 
-console.log(context);
+// console.log(context);
 
 const SYSTEM_PROMPT = `You are a helpful AI assistant who answers the user's question
 based only on the context retrieved from a PDF document.
