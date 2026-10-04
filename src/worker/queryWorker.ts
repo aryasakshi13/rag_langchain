@@ -53,7 +53,7 @@ const embeddings = new JinaEmbeddings({
   throw new Error("GEMINI_API_KEY is missing");
 }
  const llm = new ChatGoogleGenerativeAI({
-  model: "gemini-2.5-flash",
+  model: "gemini-3.8-flash",
   apiKey:GEMINI_API_KEY,
   temperature: 0.2,
 });
@@ -168,6 +168,8 @@ async function processQuery(
   );
   }
 );
+
+console.log("🚀 Query worker is running and waiting for jobs...");
  
 
 
