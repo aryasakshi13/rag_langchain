@@ -72,6 +72,12 @@ async function processQuery(
         5
         );
 
+        searchResults.forEach((document, index) => { 
+          console.log(`\n========== CHUNK ${index + 1} ==========`);
+           console.log("Content:", document.pageContent); 
+           console.log("Metadata:", document.metadata); 
+        });
+
         console.log(
             "Relevant chunks found:",
             searchResults.length
@@ -81,21 +87,34 @@ async function processQuery(
             .map((document) => document.pageContent)
             .join("\n\n");
 
-        console.log("\nContext:");
+          console.log("\n========== FULL CONTEXT =========="); 
+          console.log(context);
+
+        // console.log("\nContext:");
         console.log(context.substring(0, 1000));
 
 
-         const SYSTEM_PROMPT = `
-        You are a helpful AI assistant.
+      // const SYSTEM_PROMPT = `
+      //   You are a helpful AI assistant.
 
-        Answer the user's question using only the context provided below.
+      //   Answer the user's question using only the context provided below.
 
-        If the answer cannot be found in the context, say:
-        "I don't have enough information to answer that."
+      //   If the answer cannot be found in the context, say:
+      //   "I don't have enough information to answer that."
 
-        Context:
-        ${context}
-        `;
+      //   Context:
+      //   ${context}
+      //   `;
+      const SYSTEM_PROMPT = 
+      ` You are a helpful assistant answering questions about Node.js. 
+      Answer the user's question using only the information in the provided context. 
+      Instructions: - Use relevant information from the context. 
+      - If the context partially answers the question, explain only what it supports. 
+      -If the context does not contain enough information, 
+      say: "I don't have enough information to answer that."
+       - Do not invent facts or rely on outside knowledge. 
+       Context: ${context} 
+       `;
 
         const response = await llm.invoke([
         
